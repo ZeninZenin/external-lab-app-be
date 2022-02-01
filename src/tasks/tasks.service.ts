@@ -16,6 +16,9 @@ export class TasksService {
       },
     );
 
-    return data;
+    return data.documents.map(({ _id, ...task }) => ({
+      ...task,
+      id: _id,
+    }));
   }
 }
