@@ -1,1 +1,2 @@
-export * from '../tasks/tasks.types';
+export type { Task } from '../tasks';
+export type { User, CreateUserDto } from '../users';
