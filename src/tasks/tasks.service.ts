@@ -1,22 +1,22 @@
-import { Injectable } from '@nestjs/common';
-import axios from 'axios';
-import { ConfigService } from '@nestjs/config';
-import { TaskDB } from './tasks.types';
+import { Injectable, Logger } from '@nestjs/common';
+import { TaskDocument } from './tasks.types';
+import { AppConfigService } from '../../config/configuration';
+import { DbService } from '../db/db.service';
 
 @Injectable()
 export class TasksService {
-  constructor(private configService: ConfigService) {}
+  constructor(
+    private readonly configService: AppConfigService,
+    private readonly logger: Logger,
+    private readonly dbService: DbService,
+  ) {}
 
   async findAll() {
-    const { data } = await axios.post<{ documents: TaskDB[] }>(
-      `${this.configService.get('databaseHost')}/find`,
-      { collection: 'Tasks', database: 'Externals', dataSource: 'Cluster0' },
-      {
-        headers: { 'api-key': this.configService.get('databaseApiKey') },
-      },
-    );
+    const { db, client } = await this.dbService.connectToMongoDb();
+    const tasks = await db.collection<TaskDocument>('Tasks').find().toArray();
+    await client.close();
 
-    return data.documents.map(({ _id, ...task }) => ({
+    return tasks.map(({ _id, ...task }) => ({
       ...task,
       id: _id,
     }));

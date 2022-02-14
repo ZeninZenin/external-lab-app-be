@@ -2,20 +2,24 @@ import { Logger, Module } from '@nestjs/common';
 import { ConfigModule } from '@nestjs/config';
 import { AppController } from './app.controller';
 import { AppService } from './app.service';
-import { TasksController } from './tasks/tasks.controller';
-import { TasksModule } from './tasks/tasks.module';
+import { TasksModule } from './tasks';
 import configuration from '../config/configuration';
-import { TasksService } from './tasks/tasks.service';
+import { AuthModule } from './auth/';
+import { UsersModule } from './users';
+import { DbModule } from './db';
 
 @Module({
   imports: [
     ConfigModule.forRoot({
-      envFilePath: ['.env.development.local', '.env.development'],
+      envFilePath: ['.env.development.local', '.env.development', '.env'],
       load: [configuration],
     }),
     TasksModule,
+    AuthModule,
+    UsersModule,
+    DbModule,
   ],
-  controllers: [AppController, TasksController],
-  providers: [AppService, Logger, TasksService],
+  controllers: [AppController],
+  providers: [AppService, Logger],
 })
 export class AppModule {}

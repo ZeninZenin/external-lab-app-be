@@ -1,8 +1,7 @@
-export interface TaskDB {
-  _id: string;
+export interface TaskDocument {
   name: string;
 }
 
-export interface Task extends Omit<TaskDB, '_id'> {
+export interface Task extends TaskDocument {
   id: string;
 }

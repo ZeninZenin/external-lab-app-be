@@ -1,13 +1,11 @@
 import { Controller, Get, HttpException, Logger } from '@nestjs/common';
-import { ConfigService } from '@nestjs/config';
 import { TasksService } from './tasks.service';
 
 @Controller('tasks')
 export class TasksController {
   constructor(
-    private configService: ConfigService,
-    private logger: Logger,
-    private tasksService: TasksService,
+    private readonly logger: Logger,
+    private readonly tasksService: TasksService,
   ) {}
 
   @Get()
