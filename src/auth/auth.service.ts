@@ -1,4 +1,4 @@
-import { Injectable, Logger } from '@nestjs/common';
+import { HttpException, Injectable, Logger } from '@nestjs/common';
 import axios from 'axios';
 import { AppConfigService } from '../../config/configuration';
 import { GithubUser } from './auth.types';
@@ -27,10 +27,21 @@ export class AuthService {
         },
       );
 
-      return data.split('&')[0].split('=')[1];
+      const [firstKey, firstValue] = data.split('&')[0].split('=');
+
+      if (firstKey === 'error') {
+        throw new HttpException('Code is incorrect', 401);
+      }
+
+      if (firstKey === 'access_token') {
+        return firstValue;
+      }
     } catch (error) {
-      this.logger.error(error);
-      throw new Error(error);
+      this.logger.error(error.message);
+      throw new HttpException(
+        error.message,
+        error.response.status || error.status,
+      );
     }
   }
 
