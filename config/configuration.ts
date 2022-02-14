@@ -1,7 +1,6 @@
 import { ConfigService } from '@nestjs/config';
 
 export interface Configuration {
-  port: string | number;
   mongoDbUser: string;
   mongoDbPass: string;
   mongoDbClusterUrl: string;
@@ -11,7 +10,6 @@ export interface Configuration {
 }
 
 export default (): Configuration => ({
-  port: process.env.PORT || 3000,
   mongoDbUser: process.env.MONGO_DB_USER,
   mongoDbPass: process.env.MONGO_DB_PASS,
   mongoDbClusterUrl: process.env.MONGO_DB_CLUSTER_URL,
