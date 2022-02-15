@@ -4,7 +4,6 @@ export interface UserDocument {
   login: string;
   roles?: Role[];
   isLocked: boolean;
-  isVerified: boolean;
   githubName: string;
   firstName?: string;
   surName?: string;
@@ -12,8 +11,8 @@ export interface UserDocument {
 
 export type User = Omit<UserDocument, '_id' | 'isLocked'>;
 
-export type CreateUserDto = Omit<UserDocument, 'isLocked' | 'isVerified'>;
+export type CreateUserDto = Omit<UserDocument, 'isLocked'>;
 export type UpdateUserDto = Omit<
   UserDocument,
-  '_id' | 'isLocked' | 'isVerified' | 'githubName' | 'login'
+  '_id' | 'isLocked' | 'githubName' | 'login'
 >;

@@ -49,9 +49,9 @@ export class UsersService {
 
       if (!result) {
         await usersCollection.insertOne({
-          ...record,
           isLocked: false,
-          isVerified: false,
+          roles: ['guest'],
+          ...record,
         });
 
         result = await usersCollection.findOne({ login: record.login });
@@ -67,10 +67,7 @@ export class UsersService {
 
   verifyUser = async ({ login, roles }: User) => {
     const { usersCollection, client } = await this.connectToUsersCollection();
-    await usersCollection.findOneAndUpdate(
-      { login },
-      { $set: { isVerified: true, roles } },
-    );
+    await usersCollection.findOneAndUpdate({ login }, { $set: { roles } });
     await client.close();
   };
 
