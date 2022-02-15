@@ -10,7 +10,7 @@ export class JwtAuthGuard extends AuthGuard('jwt') {
 
   canActivate(context: ExecutionContext) {
     const request = context.switchToHttp().getRequest<Request>();
-    console.log(context.getArgs());
+
     if (request.route.path === '/auth/github') {
       return true;
     }

@@ -1,4 +1,9 @@
-import { HttpException, Injectable, Logger } from '@nestjs/common';
+import {
+  HttpException,
+  Injectable,
+  Logger,
+  UnauthorizedException,
+} from '@nestjs/common';
 import axios from 'axios';
 import { AppConfigService } from '../../config/configuration';
 import { GithubUser } from './auth.types';
@@ -58,6 +63,10 @@ export class AuthService {
         login: data.login,
         githubName: data.name,
       });
+
+      if (user.isLocked) {
+        return new UnauthorizedException();
+      }
 
       return await this.jwtService.signAsync(user);
     } catch (error) {
