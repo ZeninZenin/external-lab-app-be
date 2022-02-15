@@ -15,6 +15,7 @@ import { JwtStrategy } from './jwt/jwt.strategy';
     DbModule,
     JwtModule.register({
       signOptions: { expiresIn: '24h' },
+      secret: process.env.JWT_SECRET,
     }),
   ],
 })
