@@ -4,9 +4,10 @@ import { AppController } from './app.controller';
 import { AppService } from './app.service';
 import { TasksModule } from './tasks';
 import configuration from '../config/configuration';
-import { AuthModule } from './auth/';
+import { AuthModule, RolesGuard, JwtAuthGuard } from './auth/';
 import { UsersModule } from './users';
 import { DbModule } from './db';
+import { APP_GUARD } from '@nestjs/core';
 
 @Module({
   imports: [
@@ -20,6 +21,11 @@ import { DbModule } from './db';
     DbModule,
   ],
   controllers: [AppController],
-  providers: [AppService, Logger],
+  providers: [
+    AppService,
+    Logger,
+    { provide: APP_GUARD, useClass: JwtAuthGuard },
+    { provide: APP_GUARD, useClass: RolesGuard },
+  ],
 })
 export class AppModule {}

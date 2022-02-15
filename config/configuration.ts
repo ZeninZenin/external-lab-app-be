@@ -7,6 +7,7 @@ export interface Configuration {
   mongoDbBaseName: string;
   githubOauthClientSecret: string;
   githubOauthClientId: string;
+  jwtSecret: string;
 }
 
 export default (): Configuration => ({
@@ -16,6 +17,7 @@ export default (): Configuration => ({
   mongoDbBaseName: process.env.MONGO_DB_BASE_NAME,
   githubOauthClientId: process.env.GITHUB_OAUTH_CLIENT_ID,
   githubOauthClientSecret: process.env.GITHUB_OAUTH_CLIENT_SECRET,
+  jwtSecret: process.env.JWT_SECRET,
 });
 
 export class AppConfigService extends ConfigService<

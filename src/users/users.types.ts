@@ -1,6 +1,8 @@
+import { Role } from '../auth';
+
 export interface UserDocument {
   login: string;
-  roles?: ('admin' | 'trainer' | 'student')[];
+  roles?: Role[];
   isLocked: boolean;
   isVerified: boolean;
   githubName: string;

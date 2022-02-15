@@ -59,7 +59,7 @@ export class AuthService {
         githubName: data.name,
       });
 
-      return this.jwtService.sign(user);
+      return await this.jwtService.signAsync(user);
     } catch (error) {
       this.logger.error(error);
       throw new Error(error);

@@ -1,5 +1,6 @@
 import { Controller, Get, HttpException, Logger } from '@nestjs/common';
 import { TasksService } from './tasks.service';
+import { Roles } from '../auth';
 
 @Controller('tasks')
 export class TasksController {
@@ -9,6 +10,7 @@ export class TasksController {
   ) {}
 
   @Get()
+  @Roles('admin')
   async findAll() {
     try {
       return await this.tasksService.findAll();
