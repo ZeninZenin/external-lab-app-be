@@ -2,7 +2,13 @@ import { Injectable } from '@nestjs/common';
 import { omit } from 'lodash';
 import { AppConfigService } from '../../config/configuration';
 import { DbService } from '../db/db.service';
-import { CreateUserDto, User, UserDocument } from './users.types';
+import {
+  CreateUserDto,
+  UpdateUserDto,
+  UpdateUserNameDto,
+  User,
+  UserDocument,
+} from './users.types';
 
 @Injectable()
 export class UsersService {
@@ -41,6 +47,19 @@ export class UsersService {
       role: user.roles,
     };
   };
+
+  update = async (login: string, data: UpdateUserDto) => {
+    const { usersCollection, client } = await this.connectToUsersCollection();
+    const user = await usersCollection.findOneAndUpdate({ login }, data);
+    await client.close();
+
+    return user.value;
+  };
+
+  updateName = async (
+    login: string,
+    { firstName, surName }: UpdateUserNameDto,
+  ) => await this.update(login, { firstName, surName });
 
   findOneOrCreate = async (record: CreateUserDto) => {
     const { usersCollection, client } = await this.connectToUsersCollection();

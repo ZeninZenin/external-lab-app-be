@@ -6,9 +6,10 @@ import {
   Patch,
   Param,
   Delete,
+  Put,
 } from '@nestjs/common';
 import { UsersService } from './users.service';
-import { User } from './users.types';
+import { UpdateUserNameDto, User } from './users.types';
 import { Roles } from '../auth';
 
 @Controller('users')
@@ -30,22 +31,27 @@ export class UsersController {
   //   return this.usersService.findOne(+id);
   // }
 
-  @Patch('verify')
+  @Put('verify')
   @Roles('admin')
   verify(@Body() body: User) {
     return this.usersService.verifyUser(body);
   }
 
-  @Patch('lock/:login')
+  @Put(':login/lock')
   @Roles('admin')
   lock(@Param('login') login: string) {
     return this.usersService.lockUser(login);
   }
 
-  @Patch('unlock/:login')
+  @Put(':login/unlock')
   @Roles('admin')
   unlock(@Param('login') login: string) {
     return this.usersService.unlockUser(login);
+  }
+
+  @Put(':login/update-name')
+  updateName(@Param('login') login: string, @Body() body: UpdateUserNameDto) {
+    return this.usersService.updateName(login, body);
   }
 
   // @Delete(':id')

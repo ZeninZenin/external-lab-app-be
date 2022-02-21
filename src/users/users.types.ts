@@ -12,7 +12,10 @@ export interface UserDocument {
 export type User = Omit<UserDocument, '_id' | 'isLocked'>;
 
 export type CreateUserDto = Omit<UserDocument, 'isLocked'>;
+
 export type UpdateUserDto = Omit<
   UserDocument,
   '_id' | 'isLocked' | 'githubName' | 'login'
 >;
+
+export type UpdateUserNameDto = Pick<UpdateUserDto, 'firstName' | 'surName'>;
