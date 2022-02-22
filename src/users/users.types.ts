@@ -6,7 +6,7 @@ export interface UserDocument {
   isLocked: boolean;
   githubName: string;
   firstName?: string;
-  surName?: string;
+  lastName?: string;
 }
 
 export type User = Omit<UserDocument, '_id' | 'isLocked'>;
@@ -18,4 +18,4 @@ export type UpdateUserDto = Omit<
   '_id' | 'isLocked' | 'githubName' | 'login'
 >;
 
-export type UpdateUserNameDto = Pick<UpdateUserDto, 'firstName' | 'surName'>;
+export type UpdateUserNameDto = Pick<UpdateUserDto, 'firstName' | 'lastName'>;

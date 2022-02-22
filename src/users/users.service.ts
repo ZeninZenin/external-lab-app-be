@@ -61,8 +61,8 @@ export class UsersService {
 
   updateName = async (
     login: string,
-    { firstName, surName }: UpdateUserNameDto,
-  ) => await this.update(login, { firstName, surName });
+    { firstName, lastName }: UpdateUserNameDto,
+  ) => await this.update(login, { firstName, lastName });
 
   findOneOrCreate = async (record: CreateUserDto) => {
     const { usersCollection, client } = await this.connectToUsersCollection();
