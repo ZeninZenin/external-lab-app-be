@@ -50,7 +50,10 @@ export class UsersService {
 
   update = async (login: string, data: UpdateUserDto) => {
     const { usersCollection, client } = await this.connectToUsersCollection();
-    const user = await usersCollection.findOneAndUpdate({ login }, data);
+    const user = await usersCollection.findOneAndUpdate(
+      { login },
+      { $set: data },
+    );
     await client.close();
 
     return user.value;
