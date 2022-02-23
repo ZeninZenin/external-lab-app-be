@@ -1,7 +1,5 @@
-export interface TaskDocument {
-  name: string;
-}
+import { Task } from './task.schema';
 
-export interface Task extends TaskDocument {
-  id: string;
-}
+export type CreateTaskDto = Task;
+
+export type UpdateTaskDto = Partial<CreateTaskDto>;

@@ -1,35 +1,29 @@
-import {
-  Controller,
-  Get,
-  Post,
-  Body,
-  Patch,
-  Param,
-  Delete,
-  Put,
-} from '@nestjs/common';
+import { Controller, Get, Post, Body, Param, Put } from '@nestjs/common';
 import { UsersService } from './users.service';
-import { UpdateUserNameDto, User } from './users.types';
+import { CreateUserDto, UpdateUserNameDto } from './users.types';
 import { Roles } from '../auth';
+import { User } from './user.schema';
 
 @Controller('users')
 export class UsersController {
   constructor(private readonly usersService: UsersService) {}
 
-  // @Post()
-  // create(@Body() createUserDto: CreateUserDto) {
-  //   return this.usersService.create(createUserDto);
-  // }
+  @Post()
+  @Roles('admin')
+  create(@Body() createUserDto: CreateUserDto) {
+    return this.usersService.create(createUserDto);
+  }
+
   @Get()
   @Roles('admin')
   findAll() {
-    return this.usersService.findAll();
+    return this.usersService.find();
   }
 
-  // @Get(':id')
-  // findOne(@Param('id') id: string) {
-  //   return this.usersService.findOne(+id);
-  // }
+  @Get(':id')
+  findOne(@Param('id') id: string) {
+    return this.usersService.findOne({ login: id });
+  }
 
   @Put('verify')
   @Roles('admin')
@@ -51,7 +45,13 @@ export class UsersController {
 
   @Put(':login/update-name')
   updateName(@Param('login') login: string, @Body() body: UpdateUserNameDto) {
-    return this.usersService.updateName(login, body);
+    return this.usersService.findOneAndUpdate(
+      { login },
+      {
+        firstName: body.firstName,
+        lastName: body.lastName,
+      },
+    );
   }
 
   // @Delete(':id')

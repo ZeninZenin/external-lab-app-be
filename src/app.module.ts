@@ -3,11 +3,13 @@ import { ConfigModule } from '@nestjs/config';
 import { AppController } from './app.controller';
 import { AppService } from './app.service';
 import { TasksModule } from './tasks';
-import configuration from '../config/configuration';
+import configuration from '../config/configuration.service';
 import { AuthModule, RolesGuard, JwtAuthGuard } from './auth/';
 import { UsersModule } from './users';
-import { DbModule } from './db';
 import { APP_GUARD } from '@nestjs/core';
+import { MongooseModule } from '@nestjs/mongoose';
+import { ConfigurationModule } from '../config/configuration.module';
+import { DbService } from './db/db.service';
 
 @Module({
   imports: [
@@ -18,7 +20,10 @@ import { APP_GUARD } from '@nestjs/core';
     TasksModule,
     AuthModule,
     UsersModule,
-    DbModule,
+    MongooseModule.forRootAsync({
+      imports: [ConfigurationModule],
+      useClass: DbService,
+    }),
   ],
   controllers: [AppController],
   providers: [

@@ -1,6 +1,7 @@
 import { ConfigService } from '@nestjs/config';
+import { MongooseModuleOptions } from '@nestjs/mongoose';
 
-export interface Configuration {
+export interface ConfigurationService {
   mongoDbUser: string;
   mongoDbPass: string;
   mongoDbClusterUrl: string;
@@ -10,7 +11,7 @@ export interface Configuration {
   jwtSecret: string;
 }
 
-export default (): Configuration => ({
+export default (): ConfigurationService => ({
   mongoDbUser: process.env.MONGO_DB_USER,
   mongoDbPass: process.env.MONGO_DB_PASS,
   mongoDbClusterUrl: process.env.MONGO_DB_CLUSTER_URL,
@@ -21,5 +22,5 @@ export default (): Configuration => ({
 });
 
 export class AppConfigService extends ConfigService<
-  Record<keyof Configuration, string>
+  Record<keyof ConfigurationService, string>
 > {}

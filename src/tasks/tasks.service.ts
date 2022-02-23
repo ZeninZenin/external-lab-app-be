@@ -1,24 +1,33 @@
-import { Injectable, Logger } from '@nestjs/common';
-import { TaskDocument } from './tasks.types';
-import { AppConfigService } from '../../config/configuration';
-import { DbService } from '../db/db.service';
+import { Injectable } from '@nestjs/common';
+import { InjectModel } from '@nestjs/mongoose';
+import { FilterQuery, Model } from 'mongoose';
+import { Task, TaskDocument } from './task.schema';
+import { CreateTaskDto, UpdateTaskDto } from './tasks.types';
 
 @Injectable()
 export class TasksService {
-  constructor(
-    private readonly configService: AppConfigService,
-    private readonly logger: Logger,
-    private readonly dbService: DbService,
-  ) {}
+  constructor(@InjectModel(Task.name) private taskModel: Model<TaskDocument>) {}
 
-  async findAll() {
-    const { db, client } = await this.dbService.connectToMongoDb();
-    const tasks = await db.collection<TaskDocument>('Tasks').find().toArray();
-    await client.close();
+  create = async (record: CreateTaskDto) => {
+    const newItem = new this.taskModel(record);
 
-    return tasks.map(({ _id, ...task }) => ({
-      ...task,
-      id: _id,
-    }));
+    return newItem.save();
+  };
+
+  async findOne(filterQuery: FilterQuery<Task>): Promise<Task> {
+    return this.taskModel.findOne(filterQuery);
+  }
+
+  find = async (usersFilterQuery?: FilterQuery<Task>): Promise<Task[]> => {
+    return this.taskModel.find(usersFilterQuery);
+  };
+
+  async findOneAndUpdate(
+    filterQuery: FilterQuery<Task>,
+    userDto: UpdateTaskDto,
+  ): Promise<Task> {
+    return this.taskModel.findOneAndUpdate(filterQuery, userDto, {
+      new: true,
+    });
   }
 }

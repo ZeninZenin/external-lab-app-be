@@ -1,22 +1,39 @@
-import { Controller, Get, HttpException, Logger } from '@nestjs/common';
+import { Body, Controller, Get, Param, Post, Put } from '@nestjs/common';
 import { TasksService } from './tasks.service';
 import { Roles } from '../auth';
+import { CreateTaskDto, UpdateTaskDto } from './tasks.types';
 
 @Controller('tasks')
 export class TasksController {
-  constructor(
-    private readonly logger: Logger,
-    private readonly tasksService: TasksService,
-  ) {}
+  constructor(private readonly tasksService: TasksService) {}
 
   @Get()
-  @Roles('admin')
   async findAll() {
-    try {
-      return await this.tasksService.findAll();
-    } catch (err) {
-      this.logger.error(err);
-      throw new HttpException(err.message, err.response.status);
-    }
+    return this.tasksService.find();
+  }
+
+  @Post()
+  @Roles('admin')
+  async create(@Body() createTaskDto: CreateTaskDto) {
+    return this.tasksService.create(createTaskDto);
+  }
+
+  @Get(':id')
+  @Roles('admin')
+  findOne(@Param('id') id: string) {
+    return this.tasksService.findOne({ _id: id });
+  }
+
+  @Put(':id')
+  @Roles('admin')
+  updateName(@Param('id') id: string, @Body() body: UpdateTaskDto) {
+    return this.tasksService.findOneAndUpdate(
+      { _id: id },
+      {
+        name: body.name,
+        deadline: body.deadline,
+        description: body.description,
+      },
+    );
   }
 }

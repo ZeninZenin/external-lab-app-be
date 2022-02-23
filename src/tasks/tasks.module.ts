@@ -1,13 +1,15 @@
-import { Logger, Module } from '@nestjs/common';
+import { Module } from '@nestjs/common';
 import { TasksController } from './tasks.controller';
 import { TasksService } from './tasks.service';
-import { DbModule } from '../db';
-import { AppConfigService } from '../../config/configuration';
+import { MongooseModule } from '@nestjs/mongoose';
+import { Task, TaskSchema } from './task.schema';
 
 @Module({
   exports: [TasksService],
   controllers: [TasksController],
-  providers: [AppConfigService, Logger, TasksService],
-  imports: [DbModule],
+  providers: [TasksService],
+  imports: [
+    MongooseModule.forFeature([{ name: Task.name, schema: TaskSchema }]),
+  ],
 })
 export class TasksModule {}
