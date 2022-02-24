@@ -9,6 +9,7 @@ import { AppConfigService } from '../../config/configuration.service';
 import { GithubUser } from './auth.types';
 import { UsersService } from '../users/users.service';
 import { JwtService } from '@nestjs/jwt';
+import { omit } from 'lodash';
 
 @Injectable()
 export class AuthService {
@@ -66,7 +67,7 @@ export class AuthService {
         return new UnauthorizedException();
       }
 
-      return await this.jwtService.signAsync(JSON.stringify(user));
+      return await this.jwtService.signAsync(omit(user, 'roles'));
     } catch (error) {
       this.logger.error(error);
       throw new Error(error);
