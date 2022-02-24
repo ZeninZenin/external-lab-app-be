@@ -1,21 +1,9 @@
-import { Role } from '../auth';
+import { User } from './user.schema';
 
-export interface UserDocument {
-  login: string;
-  roles?: Role[];
-  isLocked: boolean;
-  githubName: string;
-  firstName?: string;
-  lastName?: string;
-}
+export type CreateUserDto = Partial<Omit<User, 'isLocked'>>;
 
-export type User = Omit<UserDocument, '_id' | 'isLocked'>;
-
-export type CreateUserDto = Omit<UserDocument, 'isLocked'>;
-
-export type UpdateUserDto = Omit<
-  UserDocument,
-  '_id' | 'isLocked' | 'githubName' | 'login'
+export type UpdateUserDto = Partial<
+  Omit<User, 'isLocked' | 'githubName' | 'login'>
 >;
 
-export type UpdateUserNameDto = Pick<UpdateUserDto, 'firstName' | 'lastName'>;
+export type UpdateUserNameDto = Pick<User, 'firstName' | 'lastName'>;

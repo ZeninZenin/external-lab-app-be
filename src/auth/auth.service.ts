@@ -5,10 +5,9 @@ import {
   UnauthorizedException,
 } from '@nestjs/common';
 import axios from 'axios';
-import { AppConfigService } from '../../config/configuration';
+import { AppConfigService } from '../../config/configuration.service';
 import { GithubUser } from './auth.types';
 import { UsersService } from '../users/users.service';
-import { DbService } from '../db/db.service';
 import { JwtService } from '@nestjs/jwt';
 
 @Injectable()
@@ -16,7 +15,6 @@ export class AuthService {
   constructor(
     private readonly configService: AppConfigService,
     private readonly logger: Logger,
-    private readonly dbService: DbService,
     private readonly userService: UsersService,
     private readonly jwtService: JwtService,
   ) {}

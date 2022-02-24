@@ -1,113 +1,52 @@
 import { Injectable } from '@nestjs/common';
-import { omit } from 'lodash';
-import { AppConfigService } from '../../config/configuration';
-import { DbService } from '../db/db.service';
-import {
-  CreateUserDto,
-  UpdateUserDto,
-  UpdateUserNameDto,
-  User,
-  UserDocument,
-} from './users.types';
+import { Model, FilterQuery } from 'mongoose';
+
+import { CreateUserDto, UpdateUserDto } from './users.types';
+import { InjectModel } from '@nestjs/mongoose';
+import { User, UserDocument } from './user.schema';
 
 @Injectable()
 export class UsersService {
-  constructor(
-    private readonly configService: AppConfigService,
-    private readonly dbService: DbService,
-  ) {}
+  constructor(@InjectModel(User.name) private userModel: Model<UserDocument>) {}
 
-  connectToUsersCollection = async () => {
-    const { db, client } = await this.dbService.connectToMongoDb();
-    return {
-      usersCollection: db.collection<UserDocument>('Users'),
-      client,
-      db,
-    };
+  create = async (record: CreateUserDto) => {
+    const newUser = new this.userModel(record);
+
+    return newUser.save();
   };
-
-  findAll = async () => {
-    const { usersCollection, client } = await this.connectToUsersCollection();
-    const users = await usersCollection.find().toArray();
-    await client.close();
-
-    return users.map(({ login, roles }) => ({
-      login,
-      roles,
-    }));
-  };
-
-  findOne = async (login: string) => {
-    const { usersCollection, client } = await this.connectToUsersCollection();
-    const user = await usersCollection.findOne({ login });
-    await client.close();
-
-    return {
-      login: user.login,
-      role: user.roles,
-    };
-  };
-
-  update = async (login: string, data: UpdateUserDto) => {
-    const { usersCollection, client } = await this.connectToUsersCollection();
-    const user = await usersCollection.findOneAndUpdate(
-      { login },
-      { $set: data },
-    );
-    await client.close();
-
-    return user.value;
-  };
-
-  updateName = async (
-    login: string,
-    { firstName, lastName }: UpdateUserNameDto,
-  ) => await this.update(login, { firstName, lastName });
 
   findOneOrCreate = async (record: CreateUserDto) => {
-    const { usersCollection, client } = await this.connectToUsersCollection();
-    try {
-      let result = await usersCollection.findOne({ login: record.login });
+    const result = await this.userModel.findOne({ login: record.login });
 
-      if (!result) {
-        await usersCollection.insertOne({
-          isLocked: false,
-          roles: ['guest'],
-          ...record,
-        });
-
-        result = await usersCollection.findOne({ login: record.login });
-      }
-
-      await client.close();
-      return omit(result, '_id');
-    } catch (err) {
-      await client.close();
-      throw new Error(err);
-    }
+    return result || this.create(record);
   };
 
+  async findOne(userFilterQuery: FilterQuery<User>): Promise<User> {
+    return this.userModel.findOne(userFilterQuery);
+  }
+
+  find = async (usersFilterQuery?: FilterQuery<User>): Promise<User[]> => {
+    return this.userModel.find(usersFilterQuery);
+  };
+
+  async findOneAndUpdate(
+    userFilterQuery: FilterQuery<User>,
+    userDto: UpdateUserDto,
+  ): Promise<User> {
+    return this.userModel.findOneAndUpdate(userFilterQuery, userDto, {
+      new: true,
+    });
+  }
+
   verifyUser = async ({ login, roles }: User) => {
-    const { usersCollection, client } = await this.connectToUsersCollection();
-    await usersCollection.findOneAndUpdate({ login }, { $set: { roles } });
-    await client.close();
+    return this.userModel.findOneAndUpdate({ login }, { roles });
   };
 
   lockUser = async (login: string) => {
-    const { usersCollection, client } = await this.connectToUsersCollection();
-    await usersCollection.findOneAndUpdate(
-      { login },
-      { $set: { isLocked: true } },
-    );
-    await client.close();
+    return this.userModel.findOneAndUpdate({ login }, { isLocked: true });
   };
 
   unlockUser = async (login: string) => {
-    const { usersCollection, client } = await this.connectToUsersCollection();
-    await usersCollection.findOneAndUpdate(
-      { login },
-      { $set: { isLocked: false } },
-    );
-    await client.close();
+    return this.userModel.findOneAndUpdate({ login }, { isLocked: false });
   };
 }

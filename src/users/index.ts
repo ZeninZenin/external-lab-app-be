@@ -1,2 +1,2 @@
-export type { User, CreateUserDto } from './users.types';
+export type { CreateUserDto } from './users.types';
 export { UsersModule } from './users.module';

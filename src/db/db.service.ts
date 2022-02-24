@@ -1,28 +1,26 @@
 import { Injectable } from '@nestjs/common';
-import { AppConfigService } from '../../config/configuration';
-import { MongoClient, MongoError } from 'mongodb';
+import { AppConfigService } from '../../config/configuration.service';
+import {
+  MongooseModuleOptions,
+  MongooseOptionsFactory,
+} from '@nestjs/mongoose';
 
 @Injectable()
-export class DbService {
+export class DbService implements MongooseOptionsFactory {
   constructor(private configService: AppConfigService) {}
 
-  async connectToMongoDb(
-    dbName = this.configService.get<string>('mongoDbBaseName'),
-  ) {
+  createMongooseOptions(): MongooseModuleOptions {
+    const dbName = this.configService.get<string>('mongoDbBaseName');
     const mongoDbUser = this.configService.get('mongoDbUser');
     const mongoDbPass = this.configService.get('mongoDbPass');
     const mongoDbClusterUrl = this.configService.get('mongoDbClusterUrl');
 
-    const client = new MongoClient(
-      `mongodb+srv://${mongoDbUser}:${mongoDbPass}@${mongoDbClusterUrl}?retryWrites=true&w=majority`,
-    );
+    console.log(`\n Connecting to DB ${dbName} ... \n`);
 
-    await client.connect();
-    try {
-      return { client, db: client.db(dbName) };
-    } catch (error) {
-      await client.close();
-      throw new MongoError(error);
-    }
+    const uri = `mongodb+srv://${mongoDbUser}:${mongoDbPass}@${mongoDbClusterUrl}/${dbName}?retryWrites=true&w=majority`;
+
+    return {
+      uri,
+    };
   }
 }
