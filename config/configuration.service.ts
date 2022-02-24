@@ -1,5 +1,4 @@
 import { ConfigService } from '@nestjs/config';
-import { MongooseModuleOptions } from '@nestjs/mongoose';
 
 export interface ConfigurationService {
   mongoDbUser: string;

@@ -14,20 +14,20 @@ export class TasksService {
     return newItem.save();
   };
 
-  async findOne(filterQuery: FilterQuery<Task>): Promise<Task> {
+  findOne = async (filterQuery: FilterQuery<Task>): Promise<Task> => {
     return this.taskModel.findOne(filterQuery);
-  }
+  };
 
   find = async (usersFilterQuery?: FilterQuery<Task>): Promise<Task[]> => {
     return this.taskModel.find(usersFilterQuery);
   };
 
-  async findOneAndUpdate(
+  findOneAndUpdate = async (
     filterQuery: FilterQuery<Task>,
     userDto: UpdateTaskDto,
-  ): Promise<Task> {
+  ): Promise<Task> => {
     return this.taskModel.findOneAndUpdate(filterQuery, userDto, {
       new: true,
     });
-  }
+  };
 }

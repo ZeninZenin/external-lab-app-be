@@ -1,9 +1,10 @@
 import { Prop, Schema, SchemaFactory } from '@nestjs/mongoose';
 import { Document } from 'mongoose';
+import { Role } from '../auth';
 
 export type UserDocument = User & Document;
 
-@Schema({ collection: 'Users' })
+@Schema()
 export class User {
   @Prop()
   login: string;
@@ -24,7 +25,7 @@ export class User {
   trainerId: string;
 
   @Prop({ type: [String], default: ['guest'] })
-  roles: string[];
+  roles: Role[];
 }
 
 export const UserSchema = SchemaFactory.createForClass(User);
