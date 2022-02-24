@@ -66,7 +66,7 @@ export class AuthService {
         return new UnauthorizedException();
       }
 
-      return await this.jwtService.signAsync(user);
+      return await this.jwtService.signAsync(JSON.stringify(user));
     } catch (error) {
       this.logger.error(error);
       throw new Error(error);
