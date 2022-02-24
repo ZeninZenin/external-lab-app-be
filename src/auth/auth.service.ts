@@ -66,9 +66,7 @@ export class AuthService {
         return new UnauthorizedException();
       }
 
-      return await this.jwtService.signAsync(JSON.stringify(user), {
-        expiresIn: '24h',
-      });
+      return await this.jwtService.signAsync({ user: JSON.stringify(user) });
     } catch (error) {
       this.logger.error(error);
       throw new Error(error);
