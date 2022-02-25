@@ -1,11 +1,9 @@
 import { Prop, Schema, SchemaFactory } from '@nestjs/mongoose';
-import { Document } from 'mongoose';
+import { Document, Schema as MongooseSchema, Types } from 'mongoose';
 import { Role } from '../auth';
 
-export type UserDocument = User & Document;
-
 @Schema()
-export class User {
+export class User extends Document {
   @Prop()
   login: string;
 
@@ -21,8 +19,8 @@ export class User {
   @Prop()
   githubName: string;
 
-  @Prop()
-  trainerId: string;
+  @Prop({ type: MongooseSchema.Types.ObjectId, ref: () => User })
+  trainerId: Types.ObjectId;
 
   @Prop({ type: [String], default: ['guest'] })
   roles: Role[];

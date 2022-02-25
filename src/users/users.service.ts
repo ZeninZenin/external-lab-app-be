@@ -1,13 +1,16 @@
 import { Injectable } from '@nestjs/common';
 import { Model, FilterQuery } from 'mongoose';
-
 import { CreateUserDto, UpdateUserDto } from './users.types';
 import { InjectModel } from '@nestjs/mongoose';
-import { User, UserDocument } from './user.schema';
+import { User } from './user.schema';
+import { ScoresService } from '../scores/scores.service';
 
 @Injectable()
 export class UsersService {
-  constructor(@InjectModel(User.name) private userModel: Model<UserDocument>) {}
+  constructor(
+    @InjectModel(User.name) private userModel: Model<User>,
+    private readonly scoresService: ScoresService,
+  ) {}
 
   create = async (record: CreateUserDto) => {
     const newUser = new this.userModel(record);
@@ -39,7 +42,13 @@ export class UsersService {
   }
 
   verifyUser = async ({ login, roles }: User) => {
-    return this.userModel.findOneAndUpdate({ login }, { roles });
+    const user = await this.userModel.findOneAndUpdate({ login }, { roles });
+
+    if (roles.includes('student')) {
+      await this.scoresService.initScoresForStudent(user._id);
+    }
+
+    return user;
   };
 
   lockUser = async (login: string) => {
@@ -48,5 +57,9 @@ export class UsersService {
 
   unlockUser = async (login: string) => {
     return this.userModel.findOneAndUpdate({ login }, { isLocked: false });
+  };
+
+  getStudentScore = async (login: string) => {
+    return (await this.scoresService.findAll({ userFilter: { login } }))[0];
   };
 }

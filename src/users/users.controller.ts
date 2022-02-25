@@ -54,6 +54,11 @@ export class UsersController {
     );
   }
 
+  @Get(':login/score')
+  getStudentScore(@Param('login') login: string) {
+    return this.usersService.getStudentScore(login);
+  }
+
   // @Delete(':id')
   // remove(@Param('id') id: string) {
   //   return this.usersService.remove(+id);
