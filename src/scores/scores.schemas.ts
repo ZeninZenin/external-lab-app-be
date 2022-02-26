@@ -6,10 +6,16 @@ import { Task } from '../tasks/task.schema';
 
 @Schema()
 export class Score extends Document {
-  @Prop({ type: MongooseSchema.Types.ObjectId, ref: () => User })
+  @Prop({
+    type: MongooseSchema.Types.ObjectId,
+    ref: () => User,
+  })
   student: Types.ObjectId;
 
-  @Prop({ type: MongooseSchema.Types.ObjectId, ref: () => User })
+  @Prop({
+    type: MongooseSchema.Types.ObjectId,
+    ref: () => User,
+  })
   trainer: Types.ObjectId;
 
   @Prop({ type: MongooseSchema.Types.ObjectId, ref: () => Task })

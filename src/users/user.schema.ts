@@ -1,7 +1,6 @@
 import { Prop, Schema, SchemaFactory } from '@nestjs/mongoose';
 import { Document, Schema as MongooseSchema, Types } from 'mongoose';
 import { Role } from '../auth';
-import { Score } from '../scores/scores.schemas';
 
 @Schema()
 export class User extends Document {

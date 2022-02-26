@@ -48,7 +48,7 @@ export class UsersService {
     if (roles.includes('student')) {
       const user = await this.userModel.findOneAndUpdate(
         { login },
-        { trainer: trainer, roles },
+        { trainer, roles },
         { new: true },
       );
 

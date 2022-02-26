@@ -51,7 +51,8 @@ export class ScoresService {
   };
 
   findAll = async (scoreFilter: FilterQuery<Score> = {}) => {
-    return this.scoreModel.find().find(scoreFilter).populate('task').exec();
+    console.log(scoreFilter);
+    return this.scoreModel.find().populate('task').find(scoreFilter).exec();
   };
 
   sendForReview = async (

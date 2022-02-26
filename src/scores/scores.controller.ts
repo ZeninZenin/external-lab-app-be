@@ -30,7 +30,13 @@ export class ScoresController {
   @Get()
   @Roles('admin', 'trainer')
   findAll(@Query('scoreFilter') scoreFilter?: FilterQuery<Score>) {
-    return this.scoresService.findAll({ scoreFilter });
+    return this.scoresService.findAll(scoreFilter);
+  }
+
+  @Get('/trainer/:trainer')
+  @Roles('admin', 'trainer')
+  findScoresByTrainer(@Param('trainer') trainer: string) {
+    return this.scoresService.findAll({ trainer });
   }
 
   @Put('send-for-review')
