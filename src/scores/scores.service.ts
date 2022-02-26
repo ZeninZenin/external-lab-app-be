@@ -1,7 +1,7 @@
 import { HttpException, Injectable } from '@nestjs/common';
-import { CreateScoreDto } from './scores.types';
+import { CreateScoreDto, InitScoreDto } from './scores.types';
 import { InjectModel } from '@nestjs/mongoose';
-import { FilterQuery, Model } from 'mongoose';
+import { FilterQuery, Model, Types } from 'mongoose';
 import { Score } from './scores.schemas';
 import { User } from '../users/user.schema';
 import { Task } from '../tasks/task.schema';
@@ -14,12 +14,16 @@ export class ScoresService {
     @InjectModel(Task.name) private taskModel: Model<Task>,
   ) {}
 
-  initScoresForStudent = async (studentId: string) => {
+  initScoresForStudent = async (
+    studentId: Types.ObjectId,
+    trainerId: Types.ObjectId,
+  ) => {
     const tasks = await this.taskModel.find();
 
     return this.scoreModel.insertMany(
-      tasks.map(({ _id, deadline }) => ({
+      tasks.map<InitScoreDto>(({ _id, deadline }) => ({
         student: studentId,
+        trainerId,
         task: _id,
         deadlineDate: deadline,
         status: 'todo',
@@ -46,48 +50,8 @@ export class ScoresService {
     return newItem.save();
   };
 
-  findAll = async ({
-    scoreFilter = {},
-    userFilter = {},
-  }: {
-    scoreFilter?: FilterQuery<Score>;
-    userFilter?: FilterQuery<User>;
-  } = {}) => {
-    return this.userModel
-      .aggregate()
-      .match({ ...userFilter, roles: ['student'] })
-      .lookup({
-        from: 'scores',
-        localField: '_id',
-        foreignField: 'student',
-        as: 'scores',
-        pipeline: [
-          { $match: scoreFilter },
-          { $unset: ['student', '__v'] },
-          {
-            $lookup: {
-              from: 'tasks',
-              localField: 'task',
-              foreignField: '_id',
-              as: 'task',
-            },
-          },
-          {
-            $replaceRoot: {
-              newRoot: {
-                k: { $first: '$task.name' },
-                v: '$$ROOT',
-              },
-            },
-          },
-          { $unset: 'v.task' },
-        ],
-      })
-      .addFields({ studentId: '$_id' })
-      .replaceRoot({
-        $mergeObjects: ['$$ROOT', { scores: { $arrayToObject: '$scores' } }],
-      })
-      .project({ isLocked: 0, roles: 0, _id: 0 });
+  findAll = async (scoreFilter: FilterQuery<Score> = {}) => {
+    return this.scoreModel.find().populate('task').find(scoreFilter).exec();
   };
 
   sendForReview = async (

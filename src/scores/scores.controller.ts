@@ -29,11 +29,8 @@ export class ScoresController {
 
   @Get()
   @Roles('admin', 'trainer')
-  findAll(
-    @Query('userFilter') userFilter?: FilterQuery<User>,
-    @Query('scoreFilter') scoreFilter?: FilterQuery<Score>,
-  ) {
-    return this.scoresService.findAll({ userFilter, scoreFilter });
+  findAll(@Query('scoreFilter') scoreFilter?: FilterQuery<Score>) {
+    return this.scoresService.findAll({ scoreFilter });
   }
 
   @Put('send-for-review')

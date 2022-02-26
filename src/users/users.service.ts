@@ -1,5 +1,5 @@
 import { Injectable } from '@nestjs/common';
-import { Model, FilterQuery } from 'mongoose';
+import { FilterQuery, Model } from 'mongoose';
 import { CreateUserDto, UpdateUserDto } from './users.types';
 import { InjectModel } from '@nestjs/mongoose';
 import { User } from './user.schema';
@@ -24,28 +24,31 @@ export class UsersService {
     return result || this.create(record);
   };
 
-  async findOne(userFilterQuery: FilterQuery<User>): Promise<User> {
+  findOne = async (userFilterQuery: FilterQuery<User>): Promise<User> => {
     return this.userModel.findOne(userFilterQuery);
-  }
+  };
 
   find = async (usersFilterQuery?: FilterQuery<User>): Promise<User[]> => {
     return this.userModel.find(usersFilterQuery);
   };
 
-  async findOneAndUpdate(
+  findOneAndUpdate = async (
     userFilterQuery: FilterQuery<User>,
     userDto: UpdateUserDto,
-  ): Promise<User> {
+  ): Promise<User> => {
     return this.userModel.findOneAndUpdate(userFilterQuery, userDto, {
       new: true,
     });
-  }
+  };
 
   verifyUser = async ({ login, roles }: User) => {
     const user = await this.userModel.findOneAndUpdate({ login }, { roles });
 
     if (roles.includes('student')) {
-      await this.scoresService.initScoresForStudent(user._id);
+      await this.scoresService.initScoresForStudent(
+        user._id,
+        user.trainerId?._id,
+      );
     }
 
     return user;
@@ -59,7 +62,8 @@ export class UsersService {
     return this.userModel.findOneAndUpdate({ login }, { isLocked: false });
   };
 
-  getStudentScore = async (login: string) => {
-    return (await this.scoresService.findAll({ userFilter: { login } }))[0];
+  getStudentScores = async (login: string) => {
+    const student = await this.userModel.findOne({ login });
+    return await this.scoresService.findAll({ student: student?._id });
   };
 }

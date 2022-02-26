@@ -9,6 +9,9 @@ export class Score extends Document {
   @Prop({ type: MongooseSchema.Types.ObjectId, ref: () => User })
   student: Types.ObjectId;
 
+  @Prop({ type: MongooseSchema.Types.ObjectId, ref: () => User })
+  trainerId: Types.ObjectId;
+
   @Prop({ type: MongooseSchema.Types.ObjectId, ref: () => Task })
   task: Types.ObjectId;
 
@@ -31,7 +34,7 @@ export class Score extends Document {
   sendingForRevisionDate?: Date;
 
   @Prop()
-  completionDate: Date;
+  completionDate?: Date;
 
   @Prop()
   pullRequestLink?: string;
