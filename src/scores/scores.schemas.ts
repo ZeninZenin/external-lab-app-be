@@ -10,7 +10,7 @@ export class Score extends Document {
   student: Types.ObjectId;
 
   @Prop({ type: MongooseSchema.Types.ObjectId, ref: () => User })
-  trainerId: Types.ObjectId;
+  trainer: Types.ObjectId;
 
   @Prop({ type: MongooseSchema.Types.ObjectId, ref: () => Task })
   task: Types.ObjectId;

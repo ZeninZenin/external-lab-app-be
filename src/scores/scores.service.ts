@@ -15,15 +15,15 @@ export class ScoresService {
   ) {}
 
   initScoresForStudent = async (
-    studentId: Types.ObjectId,
-    trainerId: Types.ObjectId,
+    student: Types.ObjectId,
+    trainer: Types.ObjectId,
   ) => {
     const tasks = await this.taskModel.find();
 
     return this.scoreModel.insertMany(
       tasks.map<InitScoreDto>(({ _id, deadline }) => ({
-        student: studentId,
-        trainerId,
+        student,
+        trainer,
         task: _id,
         deadlineDate: deadline,
         status: 'todo',
@@ -55,13 +55,13 @@ export class ScoresService {
   };
 
   sendForReview = async (
-    studentId: string,
-    taskId: string,
+    student: string,
+    task: string,
     pullRequestLink: string,
   ) => {
     const score = await this.scoreModel.findOne({
-      student: studentId,
-      task: taskId,
+      student,
+      task,
     });
 
     if (!['todo', 'onRevision'].includes(score.get('status'))) {
@@ -91,7 +91,8 @@ export class ScoresService {
         student: studentId,
         task: taskId,
       })
-      .set('pullRequestLink', pullRequestLink);
+      .set('pullRequestLink', pullRequestLink)
+      .set('status', 'onReview');
   };
 
   sendForRevision = async (studentId: string, taskId: string) => {
@@ -114,7 +115,7 @@ export class ScoresService {
       );
     }
 
-    score.set('status', 'onRevision');
+    score.set('status', 'onRevision').set('sendingForRevisionDate', new Date());
 
     return score.save();
   };

@@ -24,7 +24,7 @@ export class User extends Document {
   tasks: Types.ObjectId[];
 
   @Prop({ type: MongooseSchema.Types.ObjectId, ref: () => User })
-  trainerId: Types.ObjectId;
+  trainer: Types.ObjectId;
 
   @Prop({ type: [String], default: ['guest'] })
   roles: Role[];

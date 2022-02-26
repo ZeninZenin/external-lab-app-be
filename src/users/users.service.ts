@@ -4,11 +4,14 @@ import { CreateUserDto, UpdateUserDto } from './users.types';
 import { InjectModel } from '@nestjs/mongoose';
 import { User } from './user.schema';
 import { ScoresService } from '../scores/scores.service';
+import { TasksService } from '../tasks/tasks.service';
+import { Task } from '../tasks/task.schema';
 
 @Injectable()
 export class UsersService {
   constructor(
     @InjectModel(User.name) private userModel: Model<User>,
+    @InjectModel(Task.name) private taskModel: Model<Task>,
     private readonly scoresService: ScoresService,
   ) {}
 
@@ -41,17 +44,20 @@ export class UsersService {
     });
   };
 
-  verifyUser = async ({ login, roles }: User) => {
-    const user = await this.userModel.findOneAndUpdate({ login }, { roles });
-
+  verifyUser = async ({ login, roles, trainer }: User) => {
     if (roles.includes('student')) {
-      await this.scoresService.initScoresForStudent(
-        user._id,
-        user.trainerId?._id,
+      const user = await this.userModel.findOneAndUpdate(
+        { login },
+        { trainer: trainer, roles },
+        { new: true },
       );
+
+      await this.scoresService.initScoresForStudent(user._id, trainer);
+
+      return user;
     }
 
-    return user;
+    return null;
   };
 
   lockUser = async (login: string) => {
