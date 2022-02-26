@@ -1,7 +1,7 @@
 import { Prop, Schema, SchemaFactory } from '@nestjs/mongoose';
 import { Document, Schema as MongooseSchema, Types } from 'mongoose';
 import { Role } from '../auth';
-import { Task } from '../tasks/task.schema';
+import { Score } from '../scores/scores.schemas';
 
 @Schema()
 export class User extends Document {
@@ -19,9 +19,6 @@ export class User extends Document {
 
   @Prop()
   githubName: string;
-
-  @Prop([{ type: MongooseSchema.Types.ObjectId, ref: () => Task }])
-  tasks: Types.ObjectId[];
 
   @Prop({ type: MongooseSchema.Types.ObjectId, ref: () => User })
   trainer: Types.ObjectId;

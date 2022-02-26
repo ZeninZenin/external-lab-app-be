@@ -51,7 +51,7 @@ export class ScoresService {
   };
 
   findAll = async (scoreFilter: FilterQuery<Score> = {}) => {
-    return this.scoreModel.find().populate('task').find(scoreFilter).exec();
+    return this.scoreModel.find().find(scoreFilter).populate('task').exec();
   };
 
   sendForReview = async (
@@ -86,13 +86,16 @@ export class ScoresService {
     taskId: string,
     pullRequestLink: string,
   ) => {
-    return this.scoreModel
-      .findOneAndUpdate({
+    return this.scoreModel.findOneAndUpdate(
+      {
         student: studentId,
         task: taskId,
-      })
-      .set('pullRequestLink', pullRequestLink)
-      .set('status', 'onReview');
+      },
+      {
+        pullRequestLink,
+        status: 'onReview',
+      },
+    );
   };
 
   sendForRevision = async (studentId: string, taskId: string) => {
@@ -121,10 +124,10 @@ export class ScoresService {
   };
 
   complete = async (_id) => {
-    return this.scoreModel
-      .findOneAndUpdate({ _id })
-      .set('status', 'done')
-      .set('completionDate', new Date());
+    return this.scoreModel.findOneAndUpdate(
+      { _id },
+      { status: 'done', completionDate: new Date() },
+    );
   };
 
   // update = async (studentLogin: string, updateScoreDto: UpdateScoreDto) => {
