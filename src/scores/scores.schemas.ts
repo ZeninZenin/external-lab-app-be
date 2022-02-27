@@ -40,6 +40,9 @@ export class Score extends Document {
   sendingForRevisionDate?: Date;
 
   @Prop()
+  revisionDoneDate?: Date;
+
+  @Prop()
   completionDate?: Date;
 
   @Prop()

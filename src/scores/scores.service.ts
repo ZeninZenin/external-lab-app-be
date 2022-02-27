@@ -51,8 +51,17 @@ export class ScoresService {
   };
 
   findAll = async (scoreFilter: FilterQuery<Score> = {}) => {
-    console.log(scoreFilter);
     return this.scoreModel.find().populate('task').find(scoreFilter).exec();
+  };
+
+  findAllWithUsers = async (scoreFilter: FilterQuery<Score> = {}) => {
+    return this.scoreModel
+      .find()
+      .find(scoreFilter)
+      .populate('task')
+      .populate('student')
+      .populate('trainer')
+      .exec();
   };
 
   sendForReview = async (
@@ -60,26 +69,34 @@ export class ScoresService {
     task: string,
     pullRequestLink: string,
   ) => {
-    const score = await this.scoreModel.findOne({
-      student,
-      task,
-    });
+    return this.scoreModel.findOneAndUpdate(
+      {
+        student,
+        task,
+      },
+      {
+        submissionDate: new Date(),
+        status: 'onReview',
+        pullRequestLink,
+      },
+    );
 
-    if (!['todo', 'onRevision'].includes(score.get('status'))) {
-      throw new HttpException(
-        'It`s possible to send task for Review only for tasks with status "todo" or "onRevision"',
-        400,
-      );
-    }
+    // needed to check set and save work unexpected
+    // if (!['todo', 'onRevision'].includes(score.get('status'))) {
+    //   throw new HttpException(
+    //     'It`s possible to send task for Review only for tasks with status "todo" or "onRevision"',
+    //     400,
+    //   );
+    // }
+    //
+    // if (!score.get('submissionDate')) {
+    //   score.set('submissionDate', new Date());
+    // }
 
-    if (!score.get('submissionDate')) {
-      score.set('submissionDate', new Date());
-    }
-
-    return score
-      .set('status', 'onReview')
-      .set('pullRequestLink', pullRequestLink)
-      .save();
+    // return score
+    //   .set('status', 'onReview')
+    //   .set('pullRequestLink', pullRequestLink)
+    //   .save();
   };
 
   updatePullRequestLink = async (
@@ -99,35 +116,51 @@ export class ScoresService {
     );
   };
 
-  sendForRevision = async (studentId: string, taskId: string) => {
-    const score = await this.scoreModel.findOne({
-      student: studentId,
-      task: taskId,
-    });
-
-    if (score.get('status') !== 'onReview') {
-      throw new HttpException(
-        'It`s allowed to send task for revision only for tasks with status "onReview"',
-        400,
-      );
-    }
-
-    if (!!score.get('sendingForRevisionDate')) {
-      throw new HttpException(
-        'It`s allowed to send task for revision only once',
-        400,
-      );
-    }
-
-    score.set('status', 'onRevision').set('sendingForRevisionDate', new Date());
-
-    return score.save();
+  revisionDone = async (studentId: string, taskId: string) => {
+    return this.scoreModel.findOneAndUpdate(
+      {
+        student: studentId,
+        task: taskId,
+      },
+      { status: 'revisionDone', revisionDoneDate: new Date() },
+      { new: true },
+    );
   };
 
-  complete = async (_id) => {
+  sendForRevision = async (studentId: string, taskId: string) => {
+    return this.scoreModel.findOneAndUpdate(
+      {
+        student: studentId,
+        task: taskId,
+      },
+      { status: 'onRevision', sendingForRevisionDate: new Date() },
+      { new: true },
+    );
+
+    // needed to check set and save work unexpected
+    // if (score.get('status') !== 'onReview') {
+    //   throw new HttpException(
+    //     'It`s allowed to send task for revision only for tasks with status "onReview"',
+    //     400,
+    //   );
+    // }
+    //
+    // if (!!score.get('sendingForRevisionDate')) {
+    //   throw new HttpException(
+    //     'It`s allowed to send task for revision only once',
+    //     400,
+    //   );
+    // }
+    //
+    // score.set('status', 'onRevision').set('sendingForRevisionDate', new Date());
+    //
+    // return score.save();
+  };
+
+  complete = async (_id: string, score: number) => {
     return this.scoreModel.findOneAndUpdate(
       { _id },
-      { status: 'done', completionDate: new Date() },
+      { status: 'done', completionDate: new Date(), score },
     );
   };
 

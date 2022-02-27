@@ -36,7 +36,7 @@ export class ScoresController {
   @Get('/trainer/:trainer')
   @Roles('admin', 'trainer')
   findScoresByTrainer(@Param('trainer') trainer: string) {
-    return this.scoresService.findAll({ trainer });
+    return this.scoresService.findAllWithUsers({ trainer });
   }
 
   @Put('send-for-review')
@@ -104,10 +104,27 @@ export class ScoresController {
     return this.scoresService.sendForRevision(studentId, taskId);
   }
 
-  @Put(':id/complete')
+  @Put('revision-done')
+  @Roles('admin', 'trainer', 'student')
+  revisionDone(
+    @Body('studentId') studentId: string,
+    @Body('taskId') taskId: string,
+    @Req() { user }: Request & { user: User },
+  ) {
+    if (user?.roles?.includes('student') && user._id !== studentId) {
+      throw new HttpException(
+        'You may not to update another student`s score',
+        403,
+      );
+    }
+
+    return this.scoresService.revisionDone(studentId, taskId);
+  }
+
+  @Put('complete')
   @Roles('admin', 'trainer')
-  complete(@Body('id') id: string) {
-    return this.scoresService.complete(id);
+  complete(@Body('id') id: string, @Body('score') score: number) {
+    return this.scoresService.complete(id, score);
   }
 
   // @Get(':id')

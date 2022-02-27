@@ -1,6 +1,11 @@
 import { Score } from './scores.schemas';
 
-export type TaskStatus = 'todo' | 'onReview' | 'onRevision' | 'done';
+export type TaskStatus =
+  | 'todo'
+  | 'onReview'
+  | 'onRevision'
+  | 'revisionDone'
+  | 'done';
 
 export type CreateScoreDto = Pick<Score, 'student' | 'task' | 'trainer'>;
 
