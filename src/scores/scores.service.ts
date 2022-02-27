@@ -157,10 +157,10 @@ export class ScoresService {
     // return score.save();
   };
 
-  complete = async (_id: string, score: number) => {
+  complete = async (_id: string, score: number, comment: string) => {
     return this.scoreModel.findOneAndUpdate(
       { _id },
-      { status: 'done', completionDate: new Date(), score },
+      { status: 'done', completionDate: new Date(), score, comment },
     );
   };
 

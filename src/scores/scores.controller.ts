@@ -35,8 +35,15 @@ export class ScoresController {
 
   @Get('/trainer/:trainer')
   @Roles('admin', 'trainer')
-  findScoresByTrainer(@Param('trainer') trainer: string) {
-    return this.scoresService.findAllWithUsers({ trainer });
+  findScoresByTrainer(
+    @Param('trainer') trainer: string,
+    @Query('statuses') statuses?: string,
+  ) {
+    const statusFilter = statuses ? statuses.split(',') : undefined;
+    return this.scoresService.findAllWithUsers({
+      trainer,
+      status: statusFilter,
+    });
   }
 
   @Put('send-for-review')
@@ -123,8 +130,12 @@ export class ScoresController {
 
   @Put('complete')
   @Roles('admin', 'trainer')
-  complete(@Body('id') id: string, @Body('score') score: number) {
-    return this.scoresService.complete(id, score);
+  complete(
+    @Body('id') id: string,
+    @Body('score') score: number,
+    @Body('comment') comment: string,
+  ) {
+    return this.scoresService.complete(id, score, comment);
   }
 
   // @Get(':id')
