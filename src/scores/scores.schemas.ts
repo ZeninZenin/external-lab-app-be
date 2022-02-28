@@ -6,8 +6,17 @@ import { Task } from '../tasks/task.schema';
 
 @Schema()
 export class Score extends Document {
-  @Prop({ type: MongooseSchema.Types.ObjectId, ref: () => User })
+  @Prop({
+    type: MongooseSchema.Types.ObjectId,
+    ref: () => User,
+  })
   student: Types.ObjectId;
+
+  @Prop({
+    type: MongooseSchema.Types.ObjectId,
+    ref: () => User,
+  })
+  trainer: Types.ObjectId;
 
   @Prop({ type: MongooseSchema.Types.ObjectId, ref: () => Task })
   task: Types.ObjectId;
@@ -31,7 +40,10 @@ export class Score extends Document {
   sendingForRevisionDate?: Date;
 
   @Prop()
-  completionDate: Date;
+  revisionDoneDate?: Date;
+
+  @Prop()
+  completionDate?: Date;
 
   @Prop()
   pullRequestLink?: string;

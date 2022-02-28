@@ -20,7 +20,7 @@ export class User extends Document {
   githubName: string;
 
   @Prop({ type: MongooseSchema.Types.ObjectId, ref: () => User })
-  trainerId: Types.ObjectId;
+  trainer: Types.ObjectId;
 
   @Prop({ type: [String], default: ['guest'] })
   roles: Role[];

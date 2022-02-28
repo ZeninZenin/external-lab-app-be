@@ -20,6 +20,12 @@ export class UsersController {
     return this.usersService.find();
   }
 
+  @Get('trainers')
+  @Roles('admin')
+  findAllTrainers() {
+    return this.usersService.find({ roles: 'trainer' });
+  }
+
   @Get(':id')
   findOne(@Param('id') id: string) {
     return this.usersService.findOne({ login: id });
@@ -54,9 +60,9 @@ export class UsersController {
     );
   }
 
-  @Get(':login/score')
+  @Get(':login/scores')
   getStudentScore(@Param('login') login: string) {
-    return this.usersService.getStudentScore(login);
+    return this.usersService.getStudentScores(login);
   }
 
   // @Delete(':id')

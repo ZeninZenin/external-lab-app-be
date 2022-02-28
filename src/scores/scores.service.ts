@@ -1,7 +1,7 @@
 import { HttpException, Injectable } from '@nestjs/common';
-import { CreateScoreDto } from './scores.types';
+import { CreateScoreDto, InitScoreDto } from './scores.types';
 import { InjectModel } from '@nestjs/mongoose';
-import { FilterQuery, Model } from 'mongoose';
+import { FilterQuery, Model, Types } from 'mongoose';
 import { Score } from './scores.schemas';
 import { User } from '../users/user.schema';
 import { Task } from '../tasks/task.schema';
@@ -14,12 +14,16 @@ export class ScoresService {
     @InjectModel(Task.name) private taskModel: Model<Task>,
   ) {}
 
-  initScoresForStudent = async (studentId: string) => {
+  initScoresForStudent = async (
+    student: Types.ObjectId,
+    trainer: Types.ObjectId,
+  ) => {
     const tasks = await this.taskModel.find();
 
     return this.scoreModel.insertMany(
-      tasks.map(({ _id, deadline }) => ({
-        student: studentId,
+      tasks.map<InitScoreDto>(({ _id, deadline }) => ({
+        student,
+        trainer,
         task: _id,
         deadlineDate: deadline,
         status: 'todo',
@@ -46,75 +50,53 @@ export class ScoresService {
     return newItem.save();
   };
 
-  findAll = async ({
-    scoreFilter = {},
-    userFilter = {},
-  }: {
-    scoreFilter?: FilterQuery<Score>;
-    userFilter?: FilterQuery<User>;
-  } = {}) => {
-    return this.userModel
-      .aggregate()
-      .match({ ...userFilter, roles: ['student'] })
-      .lookup({
-        from: 'scores',
-        localField: '_id',
-        foreignField: 'student',
-        as: 'scores',
-        pipeline: [
-          { $match: scoreFilter },
-          { $unset: ['student', '__v'] },
-          {
-            $lookup: {
-              from: 'tasks',
-              localField: 'task',
-              foreignField: '_id',
-              as: 'task',
-            },
-          },
-          {
-            $replaceRoot: {
-              newRoot: {
-                k: { $first: '$task.name' },
-                v: '$$ROOT',
-              },
-            },
-          },
-          { $unset: 'v.task' },
-        ],
-      })
-      .addFields({ studentId: '$_id' })
-      .replaceRoot({
-        $mergeObjects: ['$$ROOT', { scores: { $arrayToObject: '$scores' } }],
-      })
-      .project({ isLocked: 0, roles: 0, _id: 0 });
+  findAll = async (scoreFilter: FilterQuery<Score> = {}) => {
+    return this.scoreModel.find().populate('task').find(scoreFilter).exec();
+  };
+
+  findAllWithUsers = async (scoreFilter: FilterQuery<Score> = {}) => {
+    return this.scoreModel
+      .find()
+      .find(scoreFilter)
+      .populate('task')
+      .populate('student')
+      .populate('trainer')
+      .exec();
   };
 
   sendForReview = async (
-    studentId: string,
-    taskId: string,
+    student: string,
+    task: string,
     pullRequestLink: string,
   ) => {
-    const score = await this.scoreModel.findOne({
-      student: studentId,
-      task: taskId,
-    });
+    return this.scoreModel.findOneAndUpdate(
+      {
+        student,
+        task,
+      },
+      {
+        submissionDate: new Date(),
+        status: 'onReview',
+        pullRequestLink,
+      },
+    );
 
-    if (!['todo', 'onRevision'].includes(score.get('status'))) {
-      throw new HttpException(
-        'It`s possible to send task for Review only for tasks with status "todo" or "onRevision"',
-        400,
-      );
-    }
+    // needed to check set and save work unexpected
+    // if (!['todo', 'onRevision'].includes(score.get('status'))) {
+    //   throw new HttpException(
+    //     'It`s possible to send task for Review only for tasks with status "todo" or "onRevision"',
+    //     400,
+    //   );
+    // }
+    //
+    // if (!score.get('submissionDate')) {
+    //   score.set('submissionDate', new Date());
+    // }
 
-    if (!score.get('submissionDate')) {
-      score.set('submissionDate', new Date());
-    }
-
-    return score
-      .set('status', 'onReview')
-      .set('pullRequestLink', pullRequestLink)
-      .save();
+    // return score
+    //   .set('status', 'onReview')
+    //   .set('pullRequestLink', pullRequestLink)
+    //   .save();
   };
 
   updatePullRequestLink = async (
@@ -122,44 +104,64 @@ export class ScoresService {
     taskId: string,
     pullRequestLink: string,
   ) => {
-    return this.scoreModel
-      .findOneAndUpdate({
+    return this.scoreModel.findOneAndUpdate(
+      {
         student: studentId,
         task: taskId,
-      })
-      .set('pullRequestLink', pullRequestLink);
+      },
+      {
+        pullRequestLink,
+        status: 'onReview',
+      },
+    );
+  };
+
+  revisionDone = async (studentId: string, taskId: string) => {
+    return this.scoreModel.findOneAndUpdate(
+      {
+        student: studentId,
+        task: taskId,
+      },
+      { status: 'revisionDone', revisionDoneDate: new Date() },
+      { new: true },
+    );
   };
 
   sendForRevision = async (studentId: string, taskId: string) => {
-    const score = await this.scoreModel.findOne({
-      student: studentId,
-      task: taskId,
-    });
+    return this.scoreModel.findOneAndUpdate(
+      {
+        student: studentId,
+        task: taskId,
+      },
+      { status: 'onRevision', sendingForRevisionDate: new Date() },
+      { new: true },
+    );
 
-    if (score.get('status') !== 'onReview') {
-      throw new HttpException(
-        'It`s allowed to send task for revision only for tasks with status "onReview"',
-        400,
-      );
-    }
-
-    if (!!score.get('sendingForRevisionDate')) {
-      throw new HttpException(
-        'It`s allowed to send task for revision only once',
-        400,
-      );
-    }
-
-    score.set('status', 'onRevision');
-
-    return score.save();
+    // needed to check set and save work unexpected
+    // if (score.get('status') !== 'onReview') {
+    //   throw new HttpException(
+    //     'It`s allowed to send task for revision only for tasks with status "onReview"',
+    //     400,
+    //   );
+    // }
+    //
+    // if (!!score.get('sendingForRevisionDate')) {
+    //   throw new HttpException(
+    //     'It`s allowed to send task for revision only once',
+    //     400,
+    //   );
+    // }
+    //
+    // score.set('status', 'onRevision').set('sendingForRevisionDate', new Date());
+    //
+    // return score.save();
   };
 
-  complete = async (_id) => {
-    return this.scoreModel
-      .findOneAndUpdate({ _id })
-      .set('status', 'done')
-      .set('completionDate', new Date());
+  complete = async (_id: string, score: number, comment: string) => {
+    return this.scoreModel.findOneAndUpdate(
+      { _id },
+      { status: 'done', completionDate: new Date(), score, comment },
+    );
   };
 
   // update = async (studentLogin: string, updateScoreDto: UpdateScoreDto) => {
