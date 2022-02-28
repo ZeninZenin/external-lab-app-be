@@ -1,12 +1,12 @@
 import { Injectable } from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
 import { FilterQuery, Model } from 'mongoose';
-import { Task, TaskDocument } from './task.schema';
+import { Task } from './task.schema';
 import { CreateTaskDto, UpdateTaskDto } from './tasks.types';
 
 @Injectable()
 export class TasksService {
-  constructor(@InjectModel(Task.name) private taskModel: Model<TaskDocument>) {}
+  constructor(@InjectModel(Task.name) private taskModel: Model<Task>) {}
 
   create = async (record: CreateTaskDto) => {
     const newItem = new this.taskModel(record);
@@ -29,5 +29,9 @@ export class TasksService {
     return this.taskModel.findOneAndUpdate(filterQuery, userDto, {
       new: true,
     });
+  };
+
+  delete = async (_id: string) => {
+    return this.taskModel.deleteOne({ _id });
   };
 }
