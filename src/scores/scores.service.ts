@@ -111,7 +111,6 @@ export class ScoresService {
       },
       {
         pullRequestLink,
-        status: 'onReview',
       },
     );
   };
@@ -161,6 +160,17 @@ export class ScoresService {
     return this.scoreModel.findOneAndUpdate(
       { _id },
       { status: 'done', completionDate: new Date(), score, comment },
+    );
+  };
+
+  updateDeadline = async (
+    _id: string,
+    deadlineDate: string,
+    deadlineChangeComment: string,
+  ) => {
+    return this.scoreModel.findOneAndUpdate(
+      { _id },
+      { deadlineDate, deadlineChangeComment },
     );
   };
 

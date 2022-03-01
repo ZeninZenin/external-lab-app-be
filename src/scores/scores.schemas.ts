@@ -34,6 +34,9 @@ export class Score extends Document {
   comment?: string;
 
   @Prop()
+  deadlineChangeComment?: string;
+
+  @Prop()
   submissionDate?: Date;
 
   @Prop()
