@@ -1,5 +1,5 @@
 import { Prop, Schema, SchemaFactory } from '@nestjs/mongoose';
-import { Document } from 'mongodb';
+import { Document } from 'mongoose';
 
 @Schema()
 export class Launch extends Document {
