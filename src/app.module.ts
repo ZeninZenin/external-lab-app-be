@@ -12,6 +12,7 @@ import { ConfigurationModule } from '../config/configuration.module';
 import { DbService } from './db/db.service';
 import { Environment } from './types';
 import { ScoresModule } from './scores/scores.module';
+import { LaunchesModule } from './launches/launches.module';
 
 const environment = process.env.NODE_ENV as Environment;
 
@@ -47,6 +48,7 @@ if (environment === 'production') {
       useClass: DbService,
     }),
     ScoresModule,
+    LaunchesModule,
   ],
   controllers: [AppController],
   providers,

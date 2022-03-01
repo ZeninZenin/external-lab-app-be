@@ -4,8 +4,8 @@ import { CreateUserDto, UpdateUserDto } from './users.types';
 import { InjectModel } from '@nestjs/mongoose';
 import { User } from './user.schema';
 import { ScoresService } from '../scores/scores.service';
-import { TasksService } from '../tasks/tasks.service';
 import { Task } from '../tasks/task.schema';
+import { LaunchesService } from '../launches/launches.service';
 
 @Injectable()
 export class UsersService {
@@ -13,6 +13,7 @@ export class UsersService {
     @InjectModel(User.name) private userModel: Model<User>,
     @InjectModel(Task.name) private taskModel: Model<Task>,
     private readonly scoresService: ScoresService,
+    private readonly launchesService: LaunchesService,
   ) {}
 
   create = async (record: CreateUserDto) => {
@@ -46,9 +47,10 @@ export class UsersService {
 
   verifyUser = async ({ login, roles, trainer }: User) => {
     if (roles.includes('student')) {
+      const actualLaunch = await this.launchesService.findActual();
       const user = await this.userModel.findOneAndUpdate(
         { login },
-        { trainer, roles },
+        { trainer, roles, launch: actualLaunch },
         { new: true },
       );
 

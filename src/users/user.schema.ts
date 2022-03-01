@@ -1,6 +1,7 @@
 import { Prop, Schema, SchemaFactory } from '@nestjs/mongoose';
 import { Document, Schema as MongooseSchema, Types } from 'mongoose';
 import { Role } from '../auth';
+import { Launch } from '../launches/launches.schemas';
 
 @Schema()
 export class User extends Document {
@@ -24,6 +25,9 @@ export class User extends Document {
 
   @Prop({ type: [String], default: ['guest'] })
   roles: Role[];
+
+  @Prop({ type: MongooseSchema.Types.ObjectId, ref: () => Launch })
+  launch: Types.ObjectId;
 }
 
 export const UserSchema = SchemaFactory.createForClass(User);
