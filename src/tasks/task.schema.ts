@@ -13,6 +13,9 @@ export class Task extends Document {
   deadline: Date;
 
   @Prop()
+  taskLink: string;
+
+  @Prop()
   isOptional: boolean;
 }
 
