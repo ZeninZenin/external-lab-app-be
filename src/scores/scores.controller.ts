@@ -33,16 +33,15 @@ export class ScoresController {
     return this.scoresService.findAll(scoreFilter);
   }
 
-  @Get('/trainer/:trainer')
+  @Post('/dashboard')
   @Roles('admin', 'trainer')
   findScoresByTrainer(
-    @Param('trainer') trainer: string,
-    @Query('statuses') statuses?: string,
+    @Body('trainers') trainers: string,
+    @Body('statuses') statuses?: string,
   ) {
-    const statusFilter = statuses ? statuses.split(',') : undefined;
     return this.scoresService.findAllWithUsers({
-      trainer,
-      status: statusFilter,
+      trainer: trainers,
+      status: statuses,
     });
   }
 
@@ -136,6 +135,20 @@ export class ScoresController {
     @Body('comment') comment: string,
   ) {
     return this.scoresService.complete(id, score, comment);
+  }
+
+  @Put('updateDeadline')
+  @Roles('admin', 'trainer')
+  updateDeadline(
+    @Body('id') id: string,
+    @Body('deadlineDate') deadlineDate: string,
+    @Body('deadlineChangeComment') deadlineChangeComment: string,
+  ) {
+    return this.scoresService.updateDeadline(
+      id,
+      deadlineDate,
+      deadlineChangeComment,
+    );
   }
 
   // @Get(':id')
