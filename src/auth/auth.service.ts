@@ -9,6 +9,7 @@ import { AppConfigService } from '../../config/configuration.service';
 import { GithubUser } from './auth.types';
 import { UsersService } from '../users/users.service';
 import { JwtService } from '@nestjs/jwt';
+import { User } from '../users/user.schema';
 
 @Injectable()
 export class AuthService {
@@ -66,10 +67,13 @@ export class AuthService {
         return new UnauthorizedException();
       }
 
-      return await this.jwtService.signAsync({ user: JSON.stringify(user) });
+      return await this.sign(user);
     } catch (error) {
       this.logger.error(error);
       throw new Error(error);
     }
   };
+
+  sign = (user: User) =>
+    this.jwtService.signAsync({ user: JSON.stringify(user) });
 }

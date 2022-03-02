@@ -23,16 +23,12 @@ const envFilePathMap: Record<Environment, ConfigModuleOptions['envFilePath']> =
     development: ['.env.development.local', '.env.development', '.env'],
   };
 
-let providers: Provider[] = [AppService, Logger];
-
-const productionProviders: Provider[] = [
+const providers: Provider[] = [
+  AppService,
+  Logger,
   { provide: APP_GUARD, useClass: JwtAuthGuard },
   { provide: APP_GUARD, useClass: RolesGuard },
 ];
-
-if (environment === 'production') {
-  providers = [...providers, ...productionProviders];
-}
 
 @Module({
   imports: [
