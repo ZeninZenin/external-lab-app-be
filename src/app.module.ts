@@ -13,6 +13,7 @@ import { DbService } from './db/db.service';
 import { Environment } from './types';
 import { ScoresModule } from './scores/scores.module';
 import { LaunchesModule } from './launches/launches.module';
+import { LecturesModule } from './lectures/lectures.module';
 
 const environment = process.env.NODE_ENV as Environment;
 
@@ -45,6 +46,7 @@ const providers: Provider[] = [
     }),
     ScoresModule,
     LaunchesModule,
+    LecturesModule,
   ],
   controllers: [AppController],
   providers,
