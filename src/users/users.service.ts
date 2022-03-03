@@ -29,7 +29,7 @@ export class UsersService {
   };
 
   findOne = async (userFilterQuery: FilterQuery<User>): Promise<User> => {
-    return this.userModel.findOne(userFilterQuery);
+    return this.userModel.findOne(userFilterQuery).populate('trainer');
   };
 
   find = async (usersFilterQuery?: FilterQuery<User>): Promise<User[]> => {
