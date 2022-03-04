@@ -26,6 +26,12 @@ export class UsersController {
     return this.usersService.find({ roles: 'trainer' });
   }
 
+  @Get(':trainerId/mentees')
+  @Roles('admin')
+  findAllMentees(@Param('trainerId') trainerId: string) {
+    return this.usersService.find({ trainer: trainerId });
+  }
+
   @Get(':id')
   findOne(@Param('id') id: string) {
     return this.usersService.findOne({ login: id });
