@@ -3,9 +3,6 @@ import {
   Get,
   Post,
   Body,
-  Patch,
-  Param,
-  Delete,
   Query,
   Put,
   Req,
@@ -17,6 +14,7 @@ import { Score } from './scores.schemas';
 import { User } from '../users/user.schema';
 import { Roles } from '../auth';
 import { Request } from 'express';
+import { identity, pickBy } from 'lodash';
 
 @Controller('scores')
 export class ScoresController {
@@ -36,13 +34,20 @@ export class ScoresController {
   @Post('/dashboard')
   @Roles('admin', 'trainer')
   findScoresByTrainer(
-    @Body('trainers') trainers: string,
-    @Body('statuses') statuses?: string,
+    @Body('trainers') trainers: string[],
+    @Body('statuses') statuses?: string[],
+    @Body('students') students?: string[],
   ) {
-    return this.scoresService.findAllWithUsers({
-      trainer: trainers,
-      status: statuses,
-    });
+    return this.scoresService.findAllWithUsers(
+      pickBy(
+        {
+          trainer: trainers,
+          status: statuses,
+          student: students,
+        },
+        identity,
+      ),
+    );
   }
 
   @Put('send-for-review')
