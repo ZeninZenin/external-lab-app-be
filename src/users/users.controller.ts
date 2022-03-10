@@ -21,13 +21,13 @@ export class UsersController {
   }
 
   @Get('trainers')
-  @Roles('admin')
+  @Roles('admin', 'trainer')
   findAllTrainers() {
     return this.usersService.find({ roles: 'trainer' });
   }
 
   @Get(':trainerId/mentees')
-  @Roles('admin')
+  @Roles('admin', 'trainer')
   findAllMentees(@Param('trainerId') trainerId: string) {
     return this.usersService.find({ trainer: trainerId });
   }
